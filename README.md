@@ -8,7 +8,7 @@
   <a href=https://huggingface.co/tencent/Hunyuan3D-Omni target="_blank"><img src=https://img.shields.io/badge/%F0%9F%A4%97%20Models-d96902.svg height=22px></a>
   <a href=https://3d-models.hunyuan.tencent.com/ target="_blank"><img src= https://img.shields.io/badge/Page-bb8a2e.svg?logo=github height=22px></a>
   <a href=https://discord.gg/dNBrdrGGMa target="_blank"><img src= https://img.shields.io/badge/Discord-white.svg?logo=discord height=22px></a>
-  <a href=https://arxiv.org/pdf/2506.15442 target="_blank"><img src=https://img.shields.io/badge/Report-b5212f.svg?logo=arxiv height=22px></a>
+  <a href=https://arxiv.org/pdf/2509.21245 target="_blank"><img src=https://img.shields.io/badge/Report-b5212f.svg?logo=arxiv height=22px></a>
   <a href=https://x.com/TencentHunyuan target="_blank"><img src=https://img.shields.io/badge/Hunyuan-black.svg?logo=x height=22px></a>
  <a href="#community-resources" target="_blank"><img src=https://img.shields.io/badge/Community-lavender.svg?logo=homeassistantcommunitystore height=22px></a>
 </div>
@@ -89,6 +89,15 @@ exploration.
 
 If you use this code in your research, please cite:
 ```bibtex
+@misc{hunyuan3d2025hunyuan3domni,
+      title={Hunyuan3D-Omni: A Unified Framework for Controllable Generation of 3D Assets}, 
+      author={Tencent Hunyuan3D Team},
+      year={2025},
+      eprint={2509.21245},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2509.21245}, 
+}
 @misc{hunyuan3d2025hunyuan3d,
     title={Hunyuan3D 2.1: From Images to High-Fidelity 3D Assets with Production-Ready PBR Material},
     author={Tencent Hunyuan3D Team},
