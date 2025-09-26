@@ -98,6 +98,7 @@ If you use this code in your research, please cite:
       primaryClass={cs.CV},
       url={https://arxiv.org/abs/2509.21245}, 
 }
+
 @misc{hunyuan3d2025hunyuan3d,
     title={Hunyuan3D 2.1: From Images to High-Fidelity 3D Assets with Production-Ready PBR Material},
     author={Tencent Hunyuan3D Team},
