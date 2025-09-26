@@ -59,7 +59,7 @@ pip install -r requirements.txt
 
 #### Multi-Modal Inference
 ```bash
-python inference.py --control_type <control_type> [--use_ema] [--flashvdm]
+python3 inference.py --control_type <control_type> [--use_ema] [--flashvdm]
 ```
 The `control_type` parameter has four available options:
 
@@ -74,9 +74,9 @@ The `--flashvdm` flag enables FlashVDM optimization for faster inference speed.
 
 Please choose the appropriate control_type based on your requirements. For example, if you want to use the `point` control type, you can run:
 ```bash
-python inference.py --control_type point 
-python inference.py --control_type point --use_ema
-python inference.py --control_type point --flashvdm
+python3 inference.py --control_type point 
+python3 inference.py --control_type point --use_ema
+python3 inference.py --control_type point --flashvdm
 ```
 
 ## Acknowledgements
