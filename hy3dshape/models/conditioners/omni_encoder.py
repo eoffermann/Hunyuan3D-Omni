@@ -348,7 +348,7 @@ class OmniEncoder(nn.Module):
         self.drop_ratio = drop_ratio
         from ..modules.embedder import FourierEmbedder
         self.pe = FourierEmbedder(num_freqs=num_freqs, include_pi=include_pi)
-        self.liner = nn.Sequential(
+        self.linear = nn.Sequential(
                 nn.Linear(self.pe.get_dims(6), width),
                 nn.RMSNorm(width),
                 nn.GELU()
@@ -435,7 +435,7 @@ class OmniEncoder(nn.Module):
 
         image_cond = self.image_encoder(image, dropout_mask=dropout_mask, mask=mask)['dino']['last_hidden_state']
         if pose is not None:
-            cond = self.liner(self.pe(pose))
+            cond = self.linear(self.pe(pose))
             cond_signal = self.cond_signal_embedding(torch.tensor([0], device=cond.device))
             cond_signal = self.cond_signal_linear(cond_signal)
             cond_signal = cond_signal.unsqueeze(0).repeat(len(image), 10, 1)
@@ -443,7 +443,7 @@ class OmniEncoder(nn.Module):
             sampled_point = pose[..., :3]
 
         elif bbox is not None:
-            cond = self.liner(self.pe(bbox.repeat(1, 1, 2)))
+            cond = self.linear(self.pe(bbox.repeat(1, 1, 2)))
             cond_signal = self.cond_signal_embedding(torch.tensor([1], device=cond.device))
             cond_signal = self.cond_signal_linear(cond_signal)
             cond_signal = cond_signal.unsqueeze(0).repeat(len(image), 10, 1)
@@ -452,7 +452,7 @@ class OmniEncoder(nn.Module):
 
         elif voxel is not None:
             voxel = self.generate_voxel(voxel[..., :3])
-            cond = self.liner(self.pe(voxel.repeat(1, 1, 2)))
+            cond = self.linear(self.pe(voxel.repeat(1, 1, 2)))
             cond_signal = self.cond_signal_embedding(torch.tensor([2], device=cond.device))
             cond_signal = self.cond_signal_linear(cond_signal)
             cond_signal = cond_signal.unsqueeze(0).repeat(len(image), 10, 1)
@@ -460,7 +460,7 @@ class OmniEncoder(nn.Module):
             sampled_point = voxel[..., :3]
 
         elif point is not None:
-            cond = self.liner(self.pe(point.repeat(1, 1, 2)))
+            cond = self.linear(self.pe(point.repeat(1, 1, 2)))
             cond_signal = self.cond_signal_embedding(torch.tensor([3], device=cond.device))
             cond_signal = self.cond_signal_linear(cond_signal)
             cond_signal = cond_signal.unsqueeze(0).repeat(len(image), 10, 1)
