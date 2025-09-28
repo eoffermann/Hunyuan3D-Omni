@@ -40,7 +40,7 @@ import glob
 import shutil
 import numpy as np
 from PIL import Image
-from hy3dshape.pipelines import *
+from hy3dshape.pipelines import Hunyuan3DOmniSiTFlowMatchingPipeline
 from hy3dshape.preprocessors import ImageProcessorV2
 from hy3dshape.postprocessors import FloaterRemover, DegenerateFaceRemover
 

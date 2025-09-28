@@ -25,15 +25,16 @@ import numpy as np
 import trimesh
 import torch
 import torch.nn as nn
+from tqdm import tqdm
 from collections import Counter
 from huggingface_hub import snapshot_download
+from diffusers.utils.torch_utils import randn_tensor
 
+from .utils import init_from_ckpt, export_to_trimesh, synchronize_timer
 from hy3dshape.models.utils.misc import get_config_from_file, instantiate_from_config
-from .pipeline_generation_v2 import Hunyuan3DGenerationPipelineV2
-from .utils import export_to_trimesh, synchronize_timer
 
 
-class Hunyuan3DOmniSiTFlowMatchingPipeline(Hunyuan3DGenerationPipelineV2):
+class Hunyuan3DOmniSiTFlowMatchingPipeline:
     '''
     This pipeline is designed for generating 3D shapes using the Hunyuan3DOmni model with SiT flow matching.
     '''
@@ -44,6 +45,8 @@ class Hunyuan3DOmniSiTFlowMatchingPipeline(Hunyuan3DGenerationPipelineV2):
                         device='cuda',
                         dtype=torch.float16,
                         resume_download=False,
+                        force_download=False,
+                        revision="main",
                         **kwargs):
 
         if os.path.exists(model_path):
@@ -56,12 +59,16 @@ class Hunyuan3DOmniSiTFlowMatchingPipeline(Hunyuan3DGenerationPipelineV2):
             if not os.path.exists(model_path):
                 print(f'Not Found {model_path}')
                 print(f'Downloading model from huggingface: {repo_id}')
-                path = snapshot_download(
-                    repo_id=repo_id,
-                    local_dir=model_path,
-                    local_dir_use_symlinks=False,
-                    resume_download=resume_download
-                )
+
+            path = snapshot_download(
+                repo_id=repo_id,
+                local_dir=model_path,
+                local_dir_use_symlinks=False,
+                resume_download=resume_download,
+                force_download=force_download, 
+                revision=revision,
+            )
+            print('path', path)
 
         ckpt_name = 'pytorch_model.bin'
         submodules = dict()
@@ -116,16 +123,15 @@ class Hunyuan3DOmniSiTFlowMatchingPipeline(Hunyuan3DGenerationPipelineV2):
         return cls(**model_kwargs)
 
     def __init__(self,
-                vae,
-                model,
-                scheduler,
-                cond_encoder,
-                image_processor,
+                vae=None,
+                model=None,
+                scheduler=None,
+                cond_encoder=None,
+                image_processor=None,
                 scale_factor=1.0,
                 device='cuda',
                 dtype=torch.float16,
                 **kwargs):
-        super().__init__(vae=None, model=None, scheduler=None, cond_encoder=None, image_processor=None)
         self.vae = vae                           # Shape-VAE
         self.model = model                       # Shape-DiT
         self.scheduler = scheduler               # Denoiser Scheduler
@@ -145,6 +151,44 @@ class Hunyuan3DOmniSiTFlowMatchingPipeline(Hunyuan3DGenerationPipelineV2):
             un_cond = {'cond': uncond}
             cond = {'cond': torch.cat((cond['cond'], un_cond['cond']), dim=0)}
         return cond, sampled_point
+
+    def prepare_latents(self, timestep, batch_size, dtype, device, generator, latents=None):
+        shape = (batch_size, *self.vae.latent_shape)
+        if isinstance(generator, list) and len(generator) != batch_size:
+            raise ValueError(
+                f"You have passed a list of generators of length {len(generator)}, but requested an effective batch"
+                f" size of {batch_size}. Make sure the batch size matches the length of the generators."
+            )
+        if latents is None:
+            latents = randn_tensor(shape, generator=generator, device=device, dtype=dtype)
+        else:
+            latents = latents.to(device)
+        # scale the initial noise by the standard deviation required by the scheduler
+        latents = latents * getattr(self.scheduler, 'init_noise_sigma', 1.0)
+        return latents
+
+
+    def prepare_image(self, image, mask):
+        if isinstance(image, torch.Tensor):
+            return image, mask
+
+        if isinstance(image, str):
+            if not os.path.exists(image):
+                raise ValueError(f"Image path {image} does not exist.")
+            image = [image]
+
+        image_pts, mask_pts = [], []
+        for img in image:
+            image_pt, mask_pt = self.image_processor(img, return_mask=True, return_view_idx=False)
+            image_pts.append(image_pt)
+            mask_pts.append(mask_pt)
+
+        image_pts = torch.cat(image_pts, dim=0).to(self.device, dtype=self.dtype)
+        if mask_pts[0] is not None:
+            mask_pts = torch.cat(mask_pts, dim=0).to(self.device, dtype=self.dtype)
+        else:
+            mask_pts = None
+        return image_pts, mask_pts
 
     @torch.no_grad()
     def __call__(
