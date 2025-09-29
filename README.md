@@ -28,10 +28,10 @@ Hunyuan3D-Omni is a unified framework for the controllable generation of 3D asse
 </p>
 
 ### Multi-Modal Conditional Control
-- **Bounding Box Control**: Generate 3D models constrained by 3D bounding boxes
-- **Pose Control**: Create 3D human models with specific skeletal poses  
-- **Point Cloud Control**: Generate 3D models guided by input point clouds
-- **Voxel Control**: Create 3D models from voxel representations
+- **Bounding Box Control**: Generate 3D models constrained by 3D bounding boxes.
+- **Pose Control**: Create 3D human models with specific skeletal poses.
+- **Point Cloud Control**: Generate 3D models guided by input point clouds.
+- **Voxel Control**: Create 3D models from voxel representations.
 
 ## 🎁 Models Zoo
 
